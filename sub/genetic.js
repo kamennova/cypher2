@@ -1,6 +1,5 @@
 const {getRate} = require("./gen.js");
 
-const str = "UMUPLYRXOYRCKTYYPDYZTOUYDZHYJYUNTOMYTOLTKAOHOKZCMKAVZDYBRORPTHQLSERUOERMKZGQJOIDJUDNDZATUVOTTLMQBOWNMERQTDTUFKZCMTAZMEOJJJOXMERKJHACMTAZATIZOEPPJKIJJNOCFEPLFBUNQHHPPKYYKQAZKTOTIKZNXPGQZQAZKTOTIZYNIUISZIAELMKSJOYUYYTHNEIEOESULOXLUEYGBEUGJLHAJTGGOEOSMJHNFJALFBOHOKAGPTIHKNMKTOUUUMUQUDATUEIRBKYUQTWKJKZNLDRZBLTJJJIDJYSULJARKHKUKBISBLTOJRATIOITHYULFBITOVHRZIAXFDRNIORLZEYUUJGEBEYLNMYCZDITKUXSJEJCFEUGJJOTQEZNORPNUDPNQIAYPEDYPDYTJAIGJYUZBLTJJYYNTMSEJYFNKHOTJARNLHHRXDUPZIALZEDUYAOSBBITKKYLXKZNQEYKKZTOKHWCOLKURTXSKKAGZEPLSYHTMKRKJIIQZDTNHDYXMEIRMROGJYUMHMDNZIOTQEKURTXSKKAGZEPLSYHTMKRKJIIQZDTNROAUYLOTIMDQJYQXZDPUMYMYPYRQNYFNUYUJJEBEOMDNIYUOHYYYJHAOQDRKKZRRJEPCFNRKJUHSJOIRQYDZBKZURKDNNEOYBTKYPEJCMKOAJORKTKJLFIOQHYPNBTAVZEUOBTKKBOWSBKOSKZUOZIHQSLIJJMSURHYZJJZUKOAYKNIYKKZNHMITBTRKBOPNUYPNTTPOKKZNKKZNLKZCFNYTKKQNUYGQJKZNXYDNJYYMEZRJJJOXMERKJVOSJIOSIQAGTZYNZIOYSMOHQDTHMEDWJKIULNOTBCALFBJNTOGSJKZNEEYYKUIXLEUNLNHNMYUOMWHHOOQNUYGQJKZLZJZLOLATSEHQKTAYPYRZJYDNQDTHBTKYKYFGJRRUFEWNTHAXFAHHODUPZMXUMKXUFEOTIMUNQIHGPAACFKATIKIZBTOTIKZNKKZNLORUKMLLFBUUQKZNLEOHIEOHEDRHXOTLMIRKLEAHUYXCZYTGUYXCZYTIUYXCZYTCVJOEBKOHE";
 const LETTERS =  "A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z".split(", ").map(c => c.toLowerCase());
 
 const createAlphabet = () => {
@@ -21,7 +20,7 @@ const decipher = (key, text) => {
 const generateKey = (len) => Array(len).fill(0).map(a => createAlphabet());
 
 //let COUNTER = 100000;
-let COUNTER = 1000;
+let COUNTER = 100;
 const MAX = 1000;
 
 const genetic = (keyLen, text) => {
@@ -30,7 +29,11 @@ const genetic = (keyLen, text) => {
     for (let i = 0; i < COUNTER; i++) {
         curr = geneticStep(curr, text);
     }
+
+    console.log(curr[0].key);
 }
+// rohouatinatatcomosohtehmtwimeahatepmtebrtnesnthantendsopfetotsfenstonstytwaheetweicatwerraertdphiera 3.1534714287738774
+// congratulations
 
 const geneticStep = (keys, text) => {
     let rest = kill(keys);
@@ -57,9 +60,6 @@ const kill = (keys) => {
 }
 
 const getParents = (keys) => {
-//    const rand = keys;
-//    return new Array(Math.floor(keys.length / 2)).fill(0).map((elem, i) => [rand[i*2], rand[i*2+1]]);
-
     const rand = keys.sort((k1, k2) => 0.5 - Math.random());
     return rand.slice(0, rand.length % 2 === 0 ? Math.floor(rand.length / 2) : (Math.floor(rand.length / 2) - 1))
         .map((elem, i) => [elem, rand[Math.floor(rand.length / 2) + i]]);
@@ -104,8 +104,9 @@ const mutateKey = (key) => {
     let upd = copy(key);
     for (let i =0; i < key.length; i++){
         const index = k[Math.round(Math.random() * 26)];
-        const index2 =  LETTERS[(LETTERS.indexOf(upd[i][index]) + 1) % LETTERS.length]
-        upd[i][index] = index2;
+//        const index2 =  LETTERS[(LETTERS.indexOf(upd[i][index]) + 1) % LETTERS.length]
+        const index2 = k[Math.round(Math.random() * 26)];
+        swap(upd, index, index2);
     }
     return upd;
 
@@ -154,8 +155,6 @@ const updateRates = (rest, nums) => {
         }
     })
 };
-
-genetic(4, str)
 
 module.exports = {
     genetic

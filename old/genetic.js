@@ -1,31 +1,22 @@
-const {getRate} = require("./gen.js");
+//const {getRate} = require("./gen.js");
 const {applyXnorToNums, nums, str5} = require("./xor.js");
+const {getRate} = require("../sub/gen.js");
 
-/*
-- start
-- rate
-
-1. kill
-2. pair
-3. breed
-4. mutate
-*/
 let COUNTER = 100000;
 //let COUNTER = 100;
 
-/*
-TODO
-- 13.54 - 14.02 fix key len, run old
-- 14.11 rating?
-- 14.21 filter same
-- split enhance
-- function
-- 39 break
-*/
-
 const MAX = 1000;
 
-const genetic = (keys, nums) => {
+const randomKey = (len) => {
+    const k = [];
+    for (let i =0; i < len; i++){
+        k.push(Math.round(Math.random() * 260));
+    }
+    return k;
+}
+
+const genetic = (keyLen, nums) => {
+    const keys = Array(MAX).fill(0).map(e => randomKey(keyLen));
     let curr = keys.map(key => ({key, rate: getRate(applyXnorToNums(key, nums))}));
 
     for (let i = 0; i < COUNTER; i++) {
@@ -33,7 +24,6 @@ const genetic = (keys, nums) => {
     }
 
     console.log(curr);
-//            console.log(applyXnorToNums(rest[0].key, nums), rest.length, rest[0].rate, rest[0].key);
 }
 
 const geneticStep = (keys, nums) => {
@@ -53,7 +43,7 @@ const geneticStep = (keys, nums) => {
 };
 
 const log = (rest, nums) => {
-    console.log(applyXnorToNums(rest[0].key, nums.slice(0, 100)), rest[0].rate, rest[0].key);
+    console.log(applyXnorToNums(rest[0].key, nums.slice(0, 100)), rest[0].rate, rest[0].key.join(", "));
 }
 
 const kill = (keys) => {
@@ -129,20 +119,10 @@ const updateRates = (rest, nums) => {
     })
 };
 
-const keys4 = [[10, 2, 30, 0], [5, 8, 1, 2], [15, 49, 2, 13], [60, 6, 14, 10], [8, 23, 23, 10], [14, 2, 60, 67], [8, 9, 23, 10], [40, 3, 90, 48]];
-const keys3 = [[10, 2, 30], [5,  8, 1], [15,47,2], [12,4,5]]; // [76, 48, 108]
-const randomKey = (len) => {
-    const k = [];
-    for (let i =0; i < len; i++){
-        k.push(Math.round(Math.random() * 100));
-    }
-    return k;
-}
-
-//genetic(keys3,str5)
-//genetic(keys4,nums)
+//genetic(Array(MAX).fill(0).map(e => randomKey(3)),str5)
+//genetic(Array(MAX).fill(0).map(e => randomKey(48)), a)
 //genetic(Array(MAX).fill(0).map(elem => randomKey(4)), nums)
-console.log(applyXnorToNums([ 47,45, 14, 49 ], nums))
+//console.log(applyXnorToNums([ 47,45, 14, 49 ], nums))
 module.exports = {
     genetic
 }
