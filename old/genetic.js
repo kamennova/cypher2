@@ -1,4 +1,3 @@
-//const {getRate} = require("./gen.js");
 const {applyXnorToNums, nums, str5} = require("./xor.js");
 const {getRate} = require("../sub/gen.js");
 
@@ -15,34 +14,34 @@ const randomKey = (len) => {
     return k;
 }
 
-const genetic = (keyLen, nums) => {
+const genetic = (keyLen, getRate) => {
     const keys = Array(MAX).fill(0).map(e => randomKey(keyLen));
-    let curr = keys.map(key => ({key, rate: getRate(applyXnorToNums(key, nums))}));
+    let curr = keys.map(key => ({key, rate: getRate(key)}));
 
     for (let i = 0; i < COUNTER; i++) {
-        curr = geneticStep(curr, nums);
+        curr = geneticStep(curr, getRate);
     }
 
     console.log(curr);
 }
 
-const geneticStep = (keys, nums) => {
+const geneticStep = (keys, getRate) => {
     let rest = kill(keys);
-    log(rest, nums);
+//    log(rest, nums);
     const pairs = getParents(rest);
     const children = breed(pairs);
     const filtered = children.filter(k => !isPresent(k, rest));
 
     rest = [...rest,
-        ...filtered.map(k => ({ key: k, rate: getRate(applyXnorToNums(k, nums)) }))
+        ...filtered.map(k => ({ key: k, rate: getRate(k) }))
     ];
     mutate(rest);
-    updateRates(rest, nums);
+    updateRates(rest, getRate);
 
     return rest;
 };
 
-const log = (rest, nums) => {
+const log = (rest, getRate) => {
     console.log(applyXnorToNums(rest[0].key, nums.slice(0, 100)), rest[0].rate, rest[0].key.join(", "));
 }
 
@@ -111,18 +110,14 @@ const mutate = (elems) => {
 
 //--------
 
-const updateRates = (rest, nums) => {
+const updateRates = (rest, getRate) => {
     rest.forEach(elem => {
         if (elem.rate === null || elem.rate === undefined) {
-            elem.rate = getRate(applyXnorToNums(elem.key, nums));
+            elem.rate = getRate(elem.key);
         }
     })
 };
 
-//genetic(Array(MAX).fill(0).map(e => randomKey(3)),str5)
-//genetic(Array(MAX).fill(0).map(e => randomKey(48)), a)
-//genetic(Array(MAX).fill(0).map(elem => randomKey(4)), nums)
-//console.log(applyXnorToNums([ 47,45, 14, 49 ], nums))
 module.exports = {
     genetic
 }

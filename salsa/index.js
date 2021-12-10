@@ -1,4 +1,6 @@
 const {genetic} = require("../old/genetic.js");
+const {applyXnorToNums} = require("../old/xor.js");
+const {getRate} = require("../sub/gen.js");
 
 const hexToNum = (input) => {
 return Buffer.from(input, 'hex');
@@ -30,6 +32,26 @@ const lines =
 2f0cdfe464344e8650edc59daac3504b1710d56b89dce5011e8c90f6`.split('\n').map(line => hexStrToNums(line));
 
 console.log(lines.flatMap(n => n).map(num => String.fromCharCode(num)).join(""))
-genetic(48, lines[2]);
+
+let max = 0;
+let best = null;
+let counter = 0;
+const salsaRate = (key) => {
+    counter++;
+//    if (counter > 2) return 0;
+    const rate = lines.map(l => {const r = getRate(applyXnorToNums(key, l)); return r}).reduce((a, b) => a+b);
+    if (rate > max) {
+        max = rate;
+        best = key;
+        console.log(applyXnorToNums(key, lines[0]).slice(0, 125), rate);
+    }
+
+
+    if (counter % 10000 === 0) {
+    console.log("Best;" , best.join(","));
+    }
+}
+
+genetic(48, salsaRate);
 
 console.log(lines[5]);
