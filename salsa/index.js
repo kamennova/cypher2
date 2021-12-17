@@ -1,14 +1,20 @@
-const {genetic} = require("../old/genetic.js");
-const {applyXnorToNums} = require("../old/xor.js");
-const {getRate} = require("../sub/gen.js");
-
-const hexToNum = (input) => {
-return Buffer.from(input, 'hex');
-}
+const {myXnor} = require("../old/xor.js");
 
 const hexStrToNums =(str) => {
     return Array(str.length/2).fill(0).map((e, i) => parseInt(str.slice(i * 2, i* 2 + 2), 16))
 }
+
+const applyXorToNums = (key, nums) => {
+    return nums.map((num, i) => {
+        const code = key[i % key.length];
+        return code ^ num;
+    });
+};
+
+const applyXnorToNums = (key, nums) => nums.map((num, i) => {
+    const code = key[i % key.length];
+    return myXnor(code, num);
+});
 
 const lines =
 `280dc9e47f3352c307f6d894ee8d534313429a79c1d8a6021f8a8eabca919cfb685a0d468973625e757490daa981ea6b
@@ -31,27 +37,59 @@ const lines =
 390bcfac282f558a03b9df9dedcc43425244d268c0cfa61602918cbd848481bf3c5c1c47db7c660c63
 2f0cdfe464344e8650edc59daac3504b1710d56b89dce5011e8c90f6`.split('\n').map(line => hexStrToNums(line));
 
-console.log(lines.flatMap(n => n).map(num => String.fromCharCode(num)).join(""))
+const toStr = (n) => n.map(l => String.fromCharCode(l)).join("")
+const aXb = applyXorToNums(lines[0], lines[1]);
+const aXc = applyXorToNums(lines[0], lines[2]);
+const aXd = applyXorToNums(lines[0], lines[3]);
 
-let max = 0;
-let best = null;
-let counter = 0;
-const salsaRate = (key) => {
-    counter++;
-//    if (counter > 2) return 0;
-    const rate = lines.map(l => {const r = getRate(applyXnorToNums(key, l)); return r}).reduce((a, b) => a+b);
-    if (rate > max) {
-        max = rate;
-        best = key;
-        console.log(applyXnorToNums(key, lines[0]).slice(0, 125), rate);
-    }
+const tryWords = "a about after all also an and any as at back be because but by can come could day do even first for from get give go good have he her him his how I if in into it its just know like look make me most my new no not now of on one only or other our out over people say see she so some take than that the their them there these they think this time to two up us use want way we will well what when which who with work would year you your".split(" ");
 
+const test = (word, lines) => {
+    let init = word.split("");
+    init[0] = init[0]
+    init = init.map(l => l.charCodeAt(0));
+    const r = applyXnorToNums(init, aXb.slice(0, word.length));
+    console.log(word, " --- ", toStr(r), toStr(applyXnorToNums(init, aXc.slice(0, word.length))));
+};
 
-    if (counter % 10000 === 0) {
-    console.log("Best;" , best.join(","));
-    }
+const key1 = [110, 98, 187, 196, 8, 91, 61, 227, 112, 153, 173, 248, 138, 173, 49, 38, 114];
+console.log(applyXorToNums(lines[0].slice(0, 4), "For ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[1].slice(0, 15), "Th'oppressor's ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[2].slice(0, 4), "The ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[3].slice(0, 17), "The insolence of ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[5].slice(0, 5), "When ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[17].slice(0, 5), "With ".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[17].slice(0, 5), "Than ".split("").map(c => c.charCodeAt(0))));
+
+console.log(applyXorToNums(lines[8].slice(0, 6), "But th".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[14].slice(0, 6), "And th".split("").map(c => c.charCodeAt(0))));
+console.log(applyXorToNums(lines[0].slice(0, 18), "For who would bear".split("").map(c => c.charCodeAt(0))));
+
+for (let i =0; i < 26; i++){
+    let key = [...key1, i + 40];
+    console.log(i, toStr(applyXnorToNums(key, lines[0].slice(0, key.length))));
+    console.log(i, toStr(applyXnorToNums(key, lines[1].slice(0, key.length))));
+    console.log(i, toStr(applyXnorToNums(key, lines[2].slice(0, key.length))));
+    console.log(i, toStr(applyXnorToNums(key, lines[3].slice(0, key.length))));
+    console.log(i, toStr(applyXnorToNums(key, lines[4].slice(0, key.length))));
+    console.log('-----');
 }
+// console.log(applyXorToNums(lines[0].slice(0, 7), "When he".split("").map(c => c.charCodeAt(0))));
 
-genetic(48, salsaRate);
+// lines.forEach((l, i) => {
+//     console.log(i, toStr(applyXnorToNums(key, l.slice(0, key.length))));
+// })
 
-console.log(lines[5]);
+// 1.tryWords.split(" ").forEach(w => test(w, lines));
+
+/*
+(line1 ^ key) ^ (line2 ^ key) = line1 ^ line2
+line2 = key !^ line1[word]
+
+I used most common english words to try substitute as first word for first 3 lines to see if any looks fit.
+Then by guessing next letter of word or word's ends I added nums to key1.
+Then I searched the beginning of line "for who would bear " - Shakespeare.
+
+ */
+
+
